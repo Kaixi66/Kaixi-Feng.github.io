@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kaixi66.github.io/sitemap.xml
+Sitemap: https://kaixi66.github.io/Kaixi-Feng.github.io/sitemap.xml
