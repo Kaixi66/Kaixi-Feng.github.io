@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="910" viewBox="0 0 680 910" fill="none">
+  <!-- Original geometric study; the reading column masks the left portion. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="300" cy="340" r="332" stroke="#73796c" stroke-width=".65" opacity=".32"/>
+    <circle cx="300" cy="340" r="252" stroke="#faf9f2" stroke-width="2" opacity=".85"/>
+    <circle cx="301" cy="341" r="252" stroke="#7c8073" stroke-width=".6" opacity=".40"/>
+    <circle cx="380" cy="634" r="166" stroke="#5e6558" stroke-width=".95" opacity=".57"/>
+    <circle cx="380" cy="634" r="146" stroke="#858a7c" stroke-width=".6" opacity=".34"/>
+    <g stroke="#454a41" opacity=".65">
+      <circle cx="300" cy="340" r="310" stroke-width="2.1"/>
+    </g>
+    <path d="M160 506L650 218" stroke="#faf9f2" stroke-width="1.8" opacity=".75"/>
+    <path d="M160 507L650 219" stroke="#73796c" stroke-width=".65" opacity=".44"/>
+  </g>
+</svg>
