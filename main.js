@@ -9,6 +9,9 @@
 
   const beacon = document.createElement('script');
   beacon.type = 'module';
-  beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js?token=8c8dba3daf074b2cb0e585cac61b2f32';
+  beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  beacon.setAttribute('data-cf-beacon', JSON.stringify({
+    token: '8c8dba3daf074b2cb0e585cac61b2f32'
+  }));
   document.body.appendChild(beacon);
 })();
