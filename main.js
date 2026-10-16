@@ -11,12 +11,11 @@
   const url = new URL(window.location.href);
   const action = url.searchParams.get('analytics');
   let disabled = false;
-  let saved = true;
 
   try {
     disabled = window.localStorage.getItem(preferenceKey) === '1';
   } catch {
-    saved = false;
+    // Preference storage is unavailable.
   }
 
   if (action === 'off' || action === 'on') {
@@ -27,9 +26,8 @@
       } else {
         window.localStorage.removeItem(preferenceKey);
       }
-      saved = true;
     } catch {
-      saved = false;
+      // Preference storage is unavailable.
     }
 
     // Remove the control from the address so copied links stay ordinary links.
@@ -39,30 +37,6 @@
     } catch {
       // A restricted History API must not interrupt the preference or page.
     }
-  }
-
-  if (disabled || action === 'on') {
-    const notice = document.createElement('div');
-    notice.setAttribute('role', 'status');
-    notice.setAttribute('data-analytics-status', disabled ? 'disabled' : 'enabled');
-    notice.lang = 'zh-CN';
-    notice.textContent = disabled
-      ? (saved ? '此浏览器已暂停访问统计。 ' : '本次访问不计入统计；浏览器未允许保存设置。 ')
-      : (saved ? '此浏览器已恢复访问统计。 ' : '本次已恢复统计；浏览器未允许保存设置。 ');
-    Object.assign(notice.style, {
-      position: 'fixed', bottom: '16px', right: '16px', zIndex: '50',
-      maxWidth: 'calc(100% - 32px)', padding: '10px 14px',
-      background: '#eeede5', color: '#272821', border: '1px solid #b5b4a8',
-      fontFamily: 'system-ui, sans-serif', fontSize: '13px', lineHeight: '1.6'
-    });
-    const control = document.createElement('a');
-    const controlUrl = new URL(url.href);
-    controlUrl.searchParams.set('analytics', disabled ? 'on' : 'off');
-    control.href = controlUrl.href;
-    control.textContent = disabled ? '恢复统计' : '暂停统计';
-    control.style.textDecoration = 'underline';
-    notice.appendChild(control);
-    document.body.appendChild(notice);
   }
 
   if (disabled) {

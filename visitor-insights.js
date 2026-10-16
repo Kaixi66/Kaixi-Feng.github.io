@@ -64,80 +64,25 @@
     }
   };
 
-  let controlsReady = false;
+  // No consent prompts or settings UI. Only retain an existing visitor approval.
   window.startVisitorInsights = () => {
-    if (controlsReady || window.location.hostname !== 'kaixi66.github.io' ||
+    if (window.location.hostname !== 'kaixi66.github.io' ||
         !window.location.pathname.startsWith('/Kaixi-Feng.github.io/')) return;
-    controlsReady = true;
-
-    const settings = document.getElementById('analytics-settings');
-    const panel = document.getElementById('analytics-options');
-    const status = document.getElementById('analytics-choice-status');
-    if (!settings || !panel || !status) return;
     const consentKey = 'kaixi-feng:insights-consent-v1';
-    const config = { consent: true, clarityProjectId: 'yy937kf7wk',
-      statcounter: { projectId: 13360146, security: '7e0e479b' } };
-    let choice = null;
-    let hadFocus = false;
     const url = new URL(window.location.href);
-
-    try { choice = window.localStorage.getItem(consentKey); } catch { /* Ask again. */ }
+    let choice = null;
+    try { choice = window.localStorage.getItem(consentKey); } catch { return; }
     if (url.searchParams.get('insights') === 'off') {
-      choice = 'declined';
       try {
-        window.localStorage.setItem(consentKey, choice);
+        window.localStorage.setItem(consentKey, 'declined');
         url.searchParams.delete('insights');
         window.history.replaceState(window.history.state, '', url.href);
-      } catch { /* Keep the opt-out URL if the preference cannot be saved. */ }
+      } catch { /* The opt-out still applies to this visit. */ }
+      return;
     }
-
-    const setStatus = () => {
-      status.textContent = choice === 'granted' ? 'Optional analytics are on.' :
-        choice === 'declined' ? 'Optional analytics are off.' : 'Optional analytics are off until you choose.';
-    };
-    const close = () => {
-      panel.hidden = true;
-      if (hadFocus || panel.contains(document.activeElement)) settings.focus();
-    };
-    settings.hidden = false;
-    settings.addEventListener('click', () => {
-      hadFocus = true;
-      setStatus();
-      panel.hidden = false;
-      panel.focus();
+    if (choice === 'granted') window.loadVisitorInsights({
+      consent: true, clarityProjectId: 'yy937kf7wk',
+      statcounter: { projectId: 13360146, security: '7e0e479b' }
     });
-    document.getElementById('analytics-close').addEventListener('click', close);
-    panel.addEventListener('keydown', event => {
-      if (event.key === 'Escape') close();
-    });
-    document.getElementById('analytics-allow').addEventListener('click', () => {
-      try {
-        window.localStorage.setItem(consentKey, 'granted');
-      } catch {
-        status.textContent = 'Your browser could not save this choice. Optional analytics remain off.';
-        return;
-      }
-      choice = 'granted';
-      window.loadVisitorInsights(config);
-      setStatus();
-      close();
-    });
-    document.getElementById('analytics-decline').addEventListener('click', () => {
-      choice = 'declined';
-      try { window.localStorage.setItem(consentKey, choice); } catch { /* Use the opt-out URL below. */ }
-      setStatus();
-      close();
-      if (initialized) {
-        if (window.clarity) window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'denied' });
-        const next = new URL(window.location.href);
-        next.searchParams.set('insights', 'off');
-        // Reload to stop both providers, including any in-flight initialization.
-        window.location.replace(next.href);
-      }
-    });
-
-    setStatus();
-    if (choice === 'granted') window.loadVisitorInsights(config);
-    else if (choice !== 'declined') panel.hidden = false;
   };
 })();
