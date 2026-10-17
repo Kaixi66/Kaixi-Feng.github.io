@@ -1,8 +1,8 @@
-// Optional visitor insights: explicit consent, with the shared owner opt-out.
+// Cookie-free visitor insights, with shared owner and visitor opt-outs. No UI.
 (() => {
   let initialized = false;
   window.loadVisitorInsights = (config = {}) => {
-    if (initialized || config.consent !== true ||
+    if (initialized || config.enabled !== true ||
         window.location.hostname !== 'kaixi66.github.io' ||
         !window.location.pathname.startsWith('/Kaixi-Feng.github.io/')) return;
 
@@ -33,7 +33,8 @@
       window.clarity = window.clarity || function () {
         (window.clarity.q = window.clarity.q || []).push(arguments);
       };
-      window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'granted' });
+      // Never claim cookie consent. Clarity runs in its supported cookieless mode.
+      window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'denied' });
       load('https://www.clarity.ms/tag/' + clarityId, 'clarity');
 
       // Fixed event names describe public-page actions, without sending link queries or emails.
@@ -60,28 +61,34 @@
       window.sc_security = statcounter.security;
       window.sc_invisible = 1;
       window.sc_https = 1;
+      // Official counter.js supports disabled client storage and this cookie opt-out.
+      window.sc_client_storage = 'disabled';
+      window.sc_first_party_cookie = 0;
       load('https://www.statcounter.com/counter/counter.js', 'statcounter');
     }
   };
 
-  // No consent prompts or settings UI. Only retain an existing visitor approval.
+  // New visitors are counted without a prompt; explicit opt-outs remain effective.
   window.startVisitorInsights = () => {
     if (window.location.hostname !== 'kaixi66.github.io' ||
         !window.location.pathname.startsWith('/Kaixi-Feng.github.io/')) return;
-    const consentKey = 'kaixi-feng:insights-consent-v1';
+    const preferenceKey = 'kaixi-feng:insights-consent-v1';
     const url = new URL(window.location.href);
     let choice = null;
-    try { choice = window.localStorage.getItem(consentKey); } catch { return; }
-    if (url.searchParams.get('insights') === 'off') {
+    try { choice = window.localStorage.getItem(preferenceKey); } catch { return; }
+    const action = url.searchParams.get('insights');
+    if (action === 'off' || action === 'on') {
+      choice = action === 'off' ? 'declined' : 'enabled';
       try {
-        window.localStorage.setItem(consentKey, 'declined');
+        window.localStorage.setItem(preferenceKey, choice);
         url.searchParams.delete('insights');
         window.history.replaceState(window.history.state, '', url.href);
-      } catch { /* The opt-out still applies to this visit. */ }
-      return;
+      } catch { /* The requested choice still applies to this visit. */ }
     }
-    if (choice === 'granted') window.loadVisitorInsights({
-      consent: true, clarityProjectId: 'yy937kf7wk',
+    if (choice === 'declined') return;
+    if (window.navigator?.globalPrivacyControl === true) return;
+    window.loadVisitorInsights({
+      enabled: true, clarityProjectId: 'yy937kf7wk',
       statcounter: { projectId: 13360146, security: '7e0e479b' }
     });
   };
